@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { UpdateDateColumn } from 'typeorm';
 import uploadConfig from '../config/upload';
 
 import CreateUserService from '../services/CreateUserService';
@@ -27,7 +26,7 @@ usersRouter.post('/', async (request, response) => {
 
     return response.json(user);
   } catch (error) {
-    return response.status(400).json({ error: error.message });
+    return response.status(error.statuCode).json({ error: error.message });
   }
 });
 
@@ -48,7 +47,7 @@ usersRouter.patch(
 
       response.json(user);
     } catch (error) {
-      return response.status(400).json({ error: error.message });
+      return response.status(error.statuCode).json({ error: error.message });
     }
     return response.json({ ok: true });
   },
