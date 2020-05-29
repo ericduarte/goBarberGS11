@@ -1,28 +1,24 @@
 import { Router } from 'express';
 import { parseISO } from 'date-fns';
-import { getCustomRepository } from 'typeorm';
-import CreateAppointmentService from '../services/CreateAppointmentService';
-import AppointmentsRepository from '../repositories/AppointmentsRepository';
+import { container } from 'tsyringe';
+import CreateAppointmentService from '@modules/appointments/services/CreateAppointmentService';
 
 const appointmentsRouter = Router();
 
 // SoC: Separation of Concerns(Separação de Preocupações)
 // DTO: Data Transfer Object
 
-appointmentsRouter.get('/', async (request, response) => {
-  const appointmentsRepository = await getCustomRepository(
-    AppointmentsRepository,
-  );
+/* appointmentsRouter.get('/', async (request, response) => {
   const appointments = await appointmentsRepository.find();
 
   return response.json(appointments);
-});
+}); */
 
 appointmentsRouter.post('/', async (request, response) => {
   const { provider_id, date } = request.body;
   const parsedDate = parseISO(date);
 
-  const createAppointmentService = new CreateAppointmentService();
+  const createAppointmentService = container.resolve(CreateAppointmentService);
 
   const appointment = await createAppointmentService.execute({
     provider_id,
