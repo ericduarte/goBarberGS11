@@ -47,7 +47,7 @@ describe('SendforgotPasswordEmailService', () => {
     ).rejects.toBeInstanceOf(AppError);
   });
 
-  it('should generate a forgot password token', async () => {
+  it('should be able a reset the password ', async () => {
     const user = await fakeUsersRepository.create({
       name: 'JOHN JONES',
       email: 'jon@email.com',
