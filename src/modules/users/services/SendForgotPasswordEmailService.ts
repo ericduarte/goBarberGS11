@@ -21,19 +21,18 @@ export default class SendForgotPasswordEmailService {
     private userTokensRepository: IUserTokensRepository,
   ) {}
 
-  public async execute({ email }: IRequest): Promise<string> {
+  public async execute({ email }: IRequest): Promise<void> {
     const user = await this.usersRepository.findByEmail(email);
 
     if (!user) {
       throw new AppError('Users does not exists.');
     }
 
-    const token = await this.userTokensRepository.generate(user.id);
+    const { token } = await this.userTokensRepository.generate(user.id);
 
-    this.mailProvider.sendMail(
+    await this.mailProvider.sendMail(
       email,
       `Pedido de recuperação de senha recebido ${token}`,
     );
-    return 'Email service';
   }
 }
