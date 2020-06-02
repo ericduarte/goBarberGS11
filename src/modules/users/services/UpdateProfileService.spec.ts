@@ -1,4 +1,3 @@
-// import AppError from '@shared/errors/AppError';
 import FakeUsersRepository from '@modules/users/repositories/fakes/FakeUsersRepository';
 import AppError from '@shared/errors/AppError';
 import FakeHashProvider from '../providers/HashProvider/fakes/FakeHashProvider';
@@ -58,15 +57,9 @@ describe('UpdateProfile', () => {
   });
 
   it('should not be able to change to password without old password', async () => {
-    await fakeUsersRepository.create({
+    const user = await fakeUsersRepository.create({
       name: 'Jonh Jones',
       email: 'jon@email.com',
-      password: '12345',
-    });
-
-    const user = await fakeUsersRepository.create({
-      name: 'RAUL SEIXAS',
-      email: 'raulseixas@email.com',
       password: '12345',
     });
 
@@ -81,12 +74,6 @@ describe('UpdateProfile', () => {
   });
 
   it('should not be able to change to password with wrong old password', async () => {
-    await fakeUsersRepository.create({
-      name: 'Jonh Jones',
-      email: 'jon@email.com',
-      password: '12345',
-    });
-
     const user = await fakeUsersRepository.create({
       name: 'RAUL SEIXAS',
       email: 'raulseixas@email.com',
@@ -119,5 +106,15 @@ describe('UpdateProfile', () => {
       password: '123123',
     });
     expect(updatedUser.password).toBe('123123');
+  });
+
+  it('should not be able to update a profile from non-existing user', async () => {
+    await expect(
+      updateUserProfile.execute({
+        user_id: 'non-existing-user-id',
+        name: 'non-existing-user-name',
+        email: 'non-existing-user-email',
+      }),
+    ).rejects.toBeInstanceOf(AppError);
   });
 });
