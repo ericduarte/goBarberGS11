@@ -1,7 +1,8 @@
-import { startOfHour, isBefore, getHours } from 'date-fns';
+import { startOfHour, isBefore, getHours, format } from 'date-fns';
 import { injectable, inject } from 'tsyringe';
 import Appointment from '@modules/appointments/infra/typeorm/entities/Appointment';
 import AppError from '@shared/errors/AppError';
+import INotificationsRepository from '@modules/notifications/repositories/INotificationsRepository';
 import IAppointmentsRepository from '../repositories/IAppointmentsRepository';
 
 interface IRequest {
@@ -15,6 +16,9 @@ class CreateAppointmentService {
   constructor(
     @inject('AppointmentsRepository')
     private appointmentsRepository: IAppointmentsRepository,
+
+    @inject('NotificationsRepository')
+    private notificationsRepository: INotificationsRepository,
   ) {}
 
   public async execute({
@@ -24,7 +28,6 @@ class CreateAppointmentService {
   }: IRequest): Promise<Appointment> {
     const currenDate = new Date(Date.now());
     const appointmentDate = startOfHour(date);
-    console.log(appointmentDate, currenDate);
 
     if (isBefore(appointmentDate, currenDate)) {
       throw new AppError("Can't create and appointment before current date");
@@ -50,6 +53,13 @@ class CreateAppointmentService {
       provider_id,
       user_id,
       date: appointmentDate,
+    });
+
+    const dateFormatted = format(appointmentDate, "dd/MM/yyyy 'às' HH:mm'h'");
+
+    await this.notificationsRepository.create({
+      recipient_id: provider_id,
+      content: `Novo agentamento para dia ${dateFormatted}`,
     });
 
     return appointment;
