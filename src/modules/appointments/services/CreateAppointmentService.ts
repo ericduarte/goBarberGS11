@@ -3,6 +3,7 @@ import { injectable, inject } from 'tsyringe';
 import Appointment from '@modules/appointments/infra/typeorm/entities/Appointment';
 import AppError from '@shared/errors/AppError';
 import INotificationsRepository from '@modules/notifications/repositories/INotificationsRepository';
+import ICacheProvider from '@shared/container/providers/CacheProvider/models/ICacheProvider';
 import IAppointmentsRepository from '../repositories/IAppointmentsRepository';
 
 interface IRequest {
@@ -19,6 +20,9 @@ class CreateAppointmentService {
 
     @inject('NotificationsRepository')
     private notificationsRepository: INotificationsRepository,
+
+    @inject('CacheProvider')
+    private cacheProvider: ICacheProvider,
   ) {}
 
   public async execute({
@@ -28,7 +32,6 @@ class CreateAppointmentService {
   }: IRequest): Promise<Appointment> {
     const currenDate = new Date(Date.now());
     const appointmentDate = startOfHour(date);
-
     if (isBefore(appointmentDate, currenDate)) {
       throw new AppError("Can't create and appointment before current date");
     }
@@ -61,6 +64,13 @@ class CreateAppointmentService {
       recipient_id: provider_id,
       content: `Novo agentamento para dia ${dateFormatted}`,
     });
+
+    const cacheKey = `provider-appointments:-${provider_id}:${format(
+      appointmentDate,
+      'yyyy-M-d',
+    )}`;
+
+    await this.cacheProvider.invalidate(cacheKey);
 
     return appointment;
   }
