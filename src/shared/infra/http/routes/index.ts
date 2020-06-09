@@ -11,9 +11,9 @@ const routes = Router();
 
 routes.use('/sessions', sessionsRouter);
 routes.use('/users', usersRouter);
+routes.use('/password', passwordRouter);
 routes.use(ensureAuthenticated);
 
-routes.use('/password', passwordRouter);
 routes.use('/profile', profileRouter);
 routes.use('/appointments', appointmentsRouter);
 routes.use('/providers', providersRouter);

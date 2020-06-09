@@ -1,5 +1,4 @@
 import { container } from 'tsyringe';
-import mailConfig from '@config/mail';
 
 import '@modules/users/providers';
 import './providers';

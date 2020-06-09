@@ -1,5 +1,6 @@
 import { injectable, inject } from 'tsyringe';
 import ICacheProvider from '@shared/container/providers/CacheProvider/models/ICacheProvider';
+import { classToClass } from 'class-transformer';
 import IAppointmentsRepository from '../repositories/IAppointmentsRepository';
 import Appointment from '../infra/typeorm/entities/Appointment';
 
@@ -31,7 +32,7 @@ export default class ListProviderAppointmentsService {
       cacheKey,
     );
 
-    if (!appointments) {
+    if (appointments) {
       appointments = await this.appointmentRepository.findAllInDayFromProvider({
         provider_id,
         year,
@@ -39,9 +40,9 @@ export default class ListProviderAppointmentsService {
         day,
       });
 
-      this.cacheProvider.save(cacheKey, appointments);
+      this.cacheProvider.save(cacheKey, classToClass(appointments));
     }
 
-    return appointments;
+    return appointments || [];
   }
 }
